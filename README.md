@@ -480,6 +480,49 @@ For development, use Cloudflare's test keys:
 
 📚 [Turnstile Testing](https://developers.cloudflare.com/turnstile/troubleshooting/testing/)
 
+## CI/CD with GitHub Actions
+
+This project includes a GitHub Actions workflow that automatically tests and deploys your Worker.
+
+### Workflow Features
+
+- **Type checking** on every push and PR to `main`
+- **Automatic deployment** to Cloudflare Workers on push to `main`
+- **Secrets managed on Cloudflare** - no duplication needed
+
+### Required GitHub Secrets
+
+Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+| Secret | Required | How to Get It |
+|--------|----------|---------------|
+| `CLOUDFLARE_API_TOKEN` | Yes | [Create API Token](#creating-cloudflare-api-token) |
+| `CLOUDFLARE_ACCOUNT_ID` | Yes | Dashboard URL: `dash.cloudflare.com/<ACCOUNT_ID>/...` |
+
+**Note:** App secrets (`TURNSTILE_SECRET_KEY`, `TELEGRAM_BOT_TOKEN`, etc.) are managed only on Cloudflare via `wrangler secret put`. They persist across deployments - no need to set them in GitHub.
+
+### Creating Cloudflare API Token
+
+1. Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **Create Token**
+3. Use the **Edit Cloudflare Workers** template, or create custom token with:
+   - **Account** → **Workers Scripts** → **Edit**
+   - **Zone** → **Zone** → **Read** (if using custom domains)
+4. Click **Continue to summary** → **Create Token**
+5. Copy the token and add it as `CLOUDFLARE_API_TOKEN` secret in GitHub
+
+### Finding Your Account ID
+
+Your Cloudflare Account ID is in the URL when you're logged into the dashboard:
+
+```
+https://dash.cloudflare.com/abc123def456/workers
+                         ^^^^^^^^^^^^
+                         This is your Account ID
+```
+
+Or go to **Workers & Pages** → **Overview** → Look for **Account ID** in the right sidebar.
+
 ## Security Best Practices
 
 1. **Always use HTTPS** - Cloudflare Workers automatically serve over HTTPS
