@@ -1,0 +1,51 @@
+name = "turnstile-telegram-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# =============================================================================
+# CUSTOM DOMAIN CONFIGURATION
+# =============================================================================
+# Option 1: Custom Domain (Recommended)
+# Your domain must be on Cloudflare (proxied through Cloudflare DNS)
+# Uncomment and replace with your domain:
+#
+# [[routes]]
+# pattern = "api.yourdomain.com/*"
+# custom_domain = true
+#
+# Or for a specific path on your domain:
+# [[routes]]
+# pattern = "yourdomain.com/api/*"
+# zone_name = "yourdomain.com"
+
+# Option 2: workers.dev subdomain (enabled by default)
+# Your worker will be available at: turnstile-telegram-api.<your-subdomain>.workers.dev
+# To disable workers.dev subdomain, uncomment:
+# workers_dev = false
+
+# =============================================================================
+# OBSERVABILITY
+# =============================================================================
+# Uncomment to enable Workers Logs
+# [observability]
+# enabled = true
+
+# =============================================================================
+# ENVIRONMENT VARIABLES
+# =============================================================================
+# Non-secret variables can be set here
+# [vars]
+# ALLOWED_ORIGINS = "https://yourdomain.com"
+
+# =============================================================================
+# SECRETS
+# =============================================================================
+# Secrets should be set via `wrangler secret put <SECRET_NAME>`
+# Required secrets:
+# - TURNSTILE_SECRET_KEY: Your Cloudflare Turnstile secret key
+# - TELEGRAM_BOT_TOKEN: Your Telegram bot token
+# - TELEGRAM_CHAT_ID: Your Telegram chat ID
+#
+# Optional secrets:
+# - API_KEY: Optional API key for authentication
+

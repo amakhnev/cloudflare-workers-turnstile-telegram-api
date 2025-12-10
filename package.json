@@ -1,0 +1,31 @@
+{
+  "name": "cloudflare-workers-turnstile-telegram-api",
+  "version": "1.0.0",
+  "description": "Lightweight REST API server for headless notifications to Telegram with Turnstile verification",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "telegram",
+    "turnstile",
+    "notifications",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "wrangler": "^4.53.0"
+  }
+}
