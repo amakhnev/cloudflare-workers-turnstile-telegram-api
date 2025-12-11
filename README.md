@@ -119,7 +119,7 @@ Your Worker will then be accessible at `https://api.yourdomain.com/notify`
 ### Default URL
 Without custom domain, your worker is available at:
 
-https://turnstile-telegram-api.<your-account>.workers.dev
+[https://turnstile-telegram-api.<your-account>.workers.dev](https://turnstile-telegram-api.<your-account>.workers.dev)
 
 You can find your exact URL after running npm run deploy - it will be printed in the terminal.
 
