@@ -1,4 +1,4 @@
-import type { Env } from '../types/env';
+import type { Env } from "../types/env";
 
 export interface AuthResult {
   success: boolean;
@@ -21,13 +21,14 @@ export function validateApiKey(request: Request, env: Env): AuthResult {
 
   // Check for API key in headers
   const apiKey =
-    request.headers.get('X-API-Key') ||
-    request.headers.get('Authorization')?.replace('Bearer ', '');
+    request.headers.get("X-API-Key") ||
+    request.headers.get("Authorization")?.replace("Bearer ", "");
 
   if (!apiKey) {
     return {
       success: false,
-      error: 'Missing API key. Provide via X-API-Key header or Authorization: Bearer <key>',
+      error:
+        "Missing API key. Provide via X-API-Key header or Authorization: Bearer <key>",
     };
   }
 
@@ -35,7 +36,7 @@ export function validateApiKey(request: Request, env: Env): AuthResult {
   if (!secureCompare(apiKey, env.API_KEY)) {
     return {
       success: false,
-      error: 'Invalid API key',
+      error: "Invalid API key",
     };
   }
 
@@ -57,4 +58,3 @@ function secureCompare(a: string, b: string): boolean {
 
   return result === 0;
 }
-

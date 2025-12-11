@@ -5,10 +5,10 @@
  * with Cloudflare Turnstile verification and optional API key authentication.
  */
 
-import { TelegramAction, type ActionPayload } from './actions';
-import { validateApiKey, verifyTurnstile } from './middleware';
-import type { Env } from './types/env';
-import { errorResponse, successResponse, withCors } from './utils/response';
+import { TelegramAction, type ActionPayload } from "./actions";
+import { validateApiKey, verifyTurnstile } from "./middleware";
+import type { Env } from "./types/env";
+import { errorResponse, successResponse, withCors } from "./utils/response";
 
 /**
  * Expected request body structure
@@ -31,18 +31,20 @@ interface NotificationRequest {
  * Get allowed CORS origin
  */
 function getAllowedOrigin(request: Request, env: Env): string {
-  const requestOrigin = request.headers.get('Origin') || '*';
-  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) || ['*'];
+  const requestOrigin = request.headers.get("Origin") || "*";
+  const allowedOrigins = env.ALLOWED_ORIGINS?.split(",").map((o) =>
+    o.trim(),
+  ) || ["*"];
 
-  if (allowedOrigins.includes('*')) {
-    return '*';
+  if (allowedOrigins.includes("*")) {
+    return "*";
   }
 
   if (allowedOrigins.includes(requestOrigin)) {
     return requestOrigin;
   }
 
-  return allowedOrigins[0] || '*';
+  return allowedOrigins[0] || "*";
 }
 
 /**
@@ -54,10 +56,10 @@ function handleOptions(request: Request, env: Env): Response {
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key, Authorization',
-      'Access-Control-Max-Age': '86400',
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-API-Key, Authorization",
+      "Access-Control-Max-Age": "86400",
     },
   });
 }
@@ -67,7 +69,7 @@ function handleOptions(request: Request, env: Env): Response {
  */
 function handleHealthCheck(env: Env): Response {
   const status = {
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
     config: {
       turnstile: Boolean(env.TURNSTILE_SECRET_KEY),
@@ -76,17 +78,20 @@ function handleHealthCheck(env: Env): Response {
     },
   };
 
-  return successResponse('Service is healthy', status);
+  return successResponse("Service is healthy", status);
 }
 
 /**
  * Handle notification endpoint
  */
-async function handleNotification(request: Request, env: Env): Promise<Response> {
+async function handleNotification(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   // 1. Validate API key (if configured)
   const authResult = validateApiKey(request, env);
   if (!authResult.success) {
-    return errorResponse(authResult.error || 'Authentication failed', 401);
+    return errorResponse(authResult.error || "Authentication failed", 401);
   }
 
   // Parse request body
@@ -94,31 +99,41 @@ async function handleNotification(request: Request, env: Env): Promise<Response>
   try {
     body = await request.json();
   } catch {
-    return errorResponse('Invalid JSON body', 400);
+    return errorResponse("Invalid JSON body", 400);
   }
 
   // Validate required fields
   if (!body.turnstile_token) {
-    return errorResponse('Missing required field: turnstile_token', 400);
+    return errorResponse("Missing required field: turnstile_token", 400);
   }
 
   if (!body.message) {
-    return errorResponse('Missing required field: message', 400);
+    return errorResponse("Missing required field: message", 400);
   }
 
   // 2. Verify Turnstile token
-  const clientIp = request.headers.get('CF-Connecting-IP') || undefined;
-  const turnstileResult = await verifyTurnstile(body.turnstile_token, env, clientIp);
+  const clientIp = request.headers.get("CF-Connecting-IP") || undefined;
+  const turnstileResult = await verifyTurnstile(
+    body.turnstile_token,
+    env,
+    clientIp,
+  );
 
   if (!turnstileResult.success) {
-    return errorResponse(turnstileResult.error || 'Turnstile verification failed', 403);
+    return errorResponse(
+      turnstileResult.error || "Turnstile verification failed",
+      403,
+    );
   }
 
   // 3. Execute action (send notification)
-  const action = new TelegramAction(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+  const action = new TelegramAction(
+    env.TELEGRAM_BOT_TOKEN,
+    env.TELEGRAM_CHAT_ID,
+  );
 
   if (!action.validate()) {
-    return errorResponse('Telegram action not properly configured', 500);
+    return errorResponse("Telegram action not properly configured", 500);
   }
 
   const payload: ActionPayload = {
@@ -145,7 +160,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   const method = request.method;
 
   // Handle CORS preflight
-  if (method === 'OPTIONS') {
+  if (method === "OPTIONS") {
     return handleOptions(request, env);
   }
 
@@ -153,22 +168,22 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
   // Route requests
   switch (path) {
-    case '/':
-    case '/health':
+    case "/":
+    case "/health":
       response = handleHealthCheck(env);
       break;
 
-    case '/notify':
-    case '/api/notify':
-      if (method !== 'POST') {
-        response = errorResponse('Method not allowed. Use POST.', 405);
+    case "/notify":
+    case "/api/notify":
+      if (method !== "POST") {
+        response = errorResponse("Method not allowed. Use POST.", 405);
       } else {
         response = await handleNotification(request, env);
       }
       break;
 
     default:
-      response = errorResponse('Not found', 404);
+      response = errorResponse("Not found", 404);
   }
 
   // Add CORS headers
@@ -184,9 +199,8 @@ export default {
     try {
       return await handleRequest(request, env);
     } catch (error) {
-      console.error('Unhandled error:', error);
-      return errorResponse('Internal server error', 500);
+      console.error("Unhandled error:", error);
+      return errorResponse("Internal server error", 500);
     }
   },
 } satisfies ExportedHandler<Env>;
-

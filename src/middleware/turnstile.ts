@@ -1,4 +1,4 @@
-import type { Env } from '../types/env';
+import type { Env } from "../types/env";
 
 /**
  * Cloudflare Turnstile verification response
@@ -6,7 +6,7 @@ import type { Env } from '../types/env';
  */
 interface TurnstileResponse {
   success: boolean;
-  'error-codes'?: string[];
+  "error-codes"?: string[];
   challenge_ts?: string;
   hostname?: string;
   action?: string;
@@ -19,21 +19,25 @@ export interface TurnstileResult {
   details?: TurnstileResponse;
 }
 
-const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const TURNSTILE_VERIFY_URL =
+  "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /**
  * Error code descriptions for better debugging
  */
 const ERROR_CODES: Record<string, string> = {
-  'missing-input-secret': 'The secret parameter was not passed',
-  'invalid-input-secret': 'The secret parameter was invalid or did not exist',
-  'missing-input-response': 'The response parameter was not passed',
-  'invalid-input-response': 'The response parameter is invalid or has expired',
-  'invalid-widget-id': 'The widget ID extracted from the parsed site secret key was invalid',
-  'invalid-parsed-secret': 'The secret extracted from the parsed site secret key was invalid',
-  'bad-request': 'The request was rejected because it was malformed',
-  'timeout-or-duplicate': 'The response parameter has already been validated before',
-  'internal-error': 'An internal error happened while validating the response',
+  "missing-input-secret": "The secret parameter was not passed",
+  "invalid-input-secret": "The secret parameter was invalid or did not exist",
+  "missing-input-response": "The response parameter was not passed",
+  "invalid-input-response": "The response parameter is invalid or has expired",
+  "invalid-widget-id":
+    "The widget ID extracted from the parsed site secret key was invalid",
+  "invalid-parsed-secret":
+    "The secret extracted from the parsed site secret key was invalid",
+  "bad-request": "The request was rejected because it was malformed",
+  "timeout-or-duplicate":
+    "The response parameter has already been validated before",
+  "internal-error": "An internal error happened while validating the response",
 };
 
 /**
@@ -41,10 +45,10 @@ const ERROR_CODES: Record<string, string> = {
  */
 function getErrorMessage(codes?: string[]): string {
   if (!codes || codes.length === 0) {
-    return 'Unknown verification error';
+    return "Unknown verification error";
   }
 
-  return codes.map((code) => ERROR_CODES[code] || code).join('; ');
+  return codes.map((code) => ERROR_CODES[code] || code).join("; ");
 }
 
 /**
@@ -58,35 +62,35 @@ function getErrorMessage(codes?: string[]): string {
 export async function verifyTurnstile(
   token: string,
   env: Env,
-  remoteIp?: string
+  remoteIp?: string,
 ): Promise<TurnstileResult> {
   if (!env.TURNSTILE_SECRET_KEY) {
     return {
       success: false,
-      error: 'Turnstile secret key not configured',
+      error: "Turnstile secret key not configured",
     };
   }
 
   if (!token) {
     return {
       success: false,
-      error: 'Missing Turnstile token',
+      error: "Missing Turnstile token",
     };
   }
 
   try {
     const formData = new URLSearchParams();
-    formData.append('secret', env.TURNSTILE_SECRET_KEY);
-    formData.append('response', token);
+    formData.append("secret", env.TURNSTILE_SECRET_KEY);
+    formData.append("response", token);
 
     if (remoteIp) {
-      formData.append('remoteip', remoteIp);
+      formData.append("remoteip", remoteIp);
     }
 
     const response = await fetch(TURNSTILE_VERIFY_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: formData.toString(),
     });
@@ -96,7 +100,7 @@ export async function verifyTurnstile(
     if (!data.success) {
       return {
         success: false,
-        error: getErrorMessage(data['error-codes']),
+        error: getErrorMessage(data["error-codes"]),
         details: data,
       };
     }
@@ -108,8 +112,10 @@ export async function verifyTurnstile(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to verify Turnstile token',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to verify Turnstile token",
     };
   }
 }
-

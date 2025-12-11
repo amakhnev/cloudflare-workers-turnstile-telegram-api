@@ -18,4 +18,3 @@ export interface Env {
   /** Optional: Allowed origins for CORS (comma-separated, defaults to "*") */
   ALLOWED_ORIGINS?: string;
 }
-

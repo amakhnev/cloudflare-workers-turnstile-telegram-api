@@ -46,4 +46,3 @@ export interface Action {
   /** Optional: Validate that the action is properly configured */
   validate?(): boolean;
 }
-

@@ -1,4 +1,4 @@
-import type { Action, ActionPayload, ActionResult } from './types';
+import type { Action, ActionPayload, ActionResult } from "./types";
 
 /**
  * Telegram Bot API response interface
@@ -18,7 +18,7 @@ export class TelegramAction implements Action {
 
   constructor(
     private readonly botToken: string,
-    private readonly chatId: string
+    private readonly chatId: string,
   ) {
     this.apiUrl = `https://api.telegram.org/bot${botToken}`;
   }
@@ -38,23 +38,31 @@ export class TelegramAction implements Action {
     const fields: string[] = [];
 
     // Handle subject
-    if (payload.subject && typeof payload.subject === 'string' && payload.subject.trim()) {
+    if (
+      payload.subject &&
+      typeof payload.subject === "string" &&
+      payload.subject.trim()
+    ) {
       fields.push(`<b>${this.escapeHtml(payload.subject.trim())}</b>`);
     }
 
     // Handle message
-    if (payload.message && typeof payload.message === 'string' && payload.message.trim()) {
+    if (
+      payload.message &&
+      typeof payload.message === "string" &&
+      payload.message.trim()
+    ) {
       fields.push(this.escapeHtml(payload.message.trim()));
     }
 
     // Handle metadata (flatten and format as key: value per line)
-    if (payload.metadata && typeof payload.metadata === 'object') {
+    if (payload.metadata && typeof payload.metadata === "object") {
       for (const [key, value] of Object.entries(payload.metadata)) {
         // Stringify value, escape HTML, and trim
-        let str = '';
-        if (typeof value === 'string') {
+        let str = "";
+        if (typeof value === "string") {
           str = this.escapeHtml(value.trim());
-        } else if (typeof value === 'number' || typeof value === 'boolean') {
+        } else if (typeof value === "number" || typeof value === "boolean") {
           str = this.escapeHtml(String(value));
         } else if (value != null) {
           str = this.escapeHtml(JSON.stringify(value));
@@ -65,7 +73,7 @@ export class TelegramAction implements Action {
       }
     }
 
-    return fields.join('\n');
+    return fields.join("\n");
   }
 
   /**
@@ -73,9 +81,9 @@ export class TelegramAction implements Action {
    */
   private escapeHtml(text: string): string {
     return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   /**
@@ -85,20 +93,20 @@ export class TelegramAction implements Action {
     if (!this.validate()) {
       return {
         success: false,
-        message: 'Telegram action is not properly configured',
+        message: "Telegram action is not properly configured",
       };
     }
 
     try {
       const response = await fetch(`${this.apiUrl}/sendMessage`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           chat_id: this.chatId,
           text: this.formatMessage(payload),
-          parse_mode: 'HTML',
+          parse_mode: "HTML",
           disable_web_page_preview: true,
         }),
       });
@@ -108,22 +116,22 @@ export class TelegramAction implements Action {
       if (!response.ok || !data.ok) {
         return {
           success: false,
-          message: data.description || 'Failed to send Telegram message',
+          message: data.description || "Failed to send Telegram message",
           data,
         };
       }
 
       return {
         success: true,
-        message: 'Notification sent successfully',
+        message: "Notification sent successfully",
         data: data.result,
       };
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
       };
     }
   }
 }
-
